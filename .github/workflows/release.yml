@@ -1,0 +1,27 @@
+name: Upload virtualenv.pyz to release
+
+on:
+  release:
+    types: [published]
+
+# Sets the permissions for GITHUB_TOKEN to allow writing to releases
+permissions:
+  contents: write
+
+jobs:
+  upload-asset:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v5
+
+      - name: Upload virtualenv.pyz to release
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ github.event.release.upload_url }}
+          asset_path: ./public/virtualenv.pyz
+          asset_name: virtualenv.pyz
+          asset_content_type: application/octet-stream
