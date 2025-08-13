@@ -1,36 +1,29 @@
-name: Upload virtualenv.pyz to release
+name: Create Release on Version Change
 
 on:
-  release:
-    types: [published]
+  push:
+    branches:
+      - main
+    paths:
+      - 'public/version.txt'
 
-# Sets the permissions for GITHUB_TOKEN to allow writing to releases
 permissions:
   contents: write
 
 jobs:
-  upload-asset:
-    runs-on: ubuntu-latest
+  create-release:
+    runs-on: ubuntu-24.04
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v5
+        uses: actions/checkout@v4
 
-      - name: Upload virtualenv.pyz to release
-        run: |
-          upload_url=${{ github.event.release.upload_url }}
+      - name: Read version from file
+        id: get_version
+        run: echo "version=$(cat public/version.txt)" >> $GITHUB_OUTPUT
 
-          # Remove the template bit at the end
-          upload_url="${upload_url%\{*\}}"
-          # add the asset name
-          upload_url="${upload_url}?name=virtualenv.pyz"
-
-          curl -L --fail-with-body \
-            -X POST \
-            -H "Accept: application/vnd.github+json" \
-            -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
-            -H "X-GitHub-Api-Version: 2022-11-28" \
-            -H "Content-Type: application/octet-stream" \
-            "${upload_url}" \
-            --data-binary "@public/virtualenv.pyz"
-
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.get_version.outputs.version }}
+          files: public/virtualenv.pyz
