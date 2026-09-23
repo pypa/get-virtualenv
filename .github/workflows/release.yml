@@ -5,25 +5,31 @@ on:
     branches:
       - main
     paths:
-      - 'public/version.txt'
+      - "public/version.txt"
 
-permissions:
-  contents: write
+concurrency:
+  group: ${{ github.workflow }}
+  cancel-in-progress: false
+
+permissions: {}
 
 jobs:
   create-release:
+    name: Create release
     runs-on: ubuntu-24.04
-
+    permissions:
+      contents: write # create the release and upload the zipapp
     steps:
       - name: Checkout code
-        uses: actions/checkout@v7
-
-      - name: Read version from file
-        id: get_version
-        run: echo "version=$(cat public/version.txt)" >> $GITHUB_OUTPUT
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
 
       - name: Create GitHub Release
-        uses: softprops/action-gh-release@v3
-        with:
-          tag_name: ${{ steps.get_version.outputs.version }}
-          files: public/virtualenv.pyz
+        env:
+          GH_TOKEN: ${{ github.token }}
+        # one call uploads the zipapp while creating the release, which immutable releases require
+        run: |
+          version=$(cat public/version.txt)
+          gh release create "$version" public/virtualenv.pyz --repo "$GITHUB_REPOSITORY" --target "$GITHUB_SHA" \
+            --title "$version" --notes ""
