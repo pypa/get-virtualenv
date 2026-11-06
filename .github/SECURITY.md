@@ -8,5 +8,8 @@ Report vulnerabilities through [virtualenv's security policy](https://github.com
 [advisory form](https://github.com/pypa/virtualenv/security/advisories/new) takes private reports. That policy covers
 these files too.
 
+That policy sets the timelines: an acknowledgment within 5 working days, an assessment within 15, and coordinated
+disclosure through a published advisory after a default 90-day embargo.
+
 [Verify a release](https://virtualenv.pypa.io/en/latest/how-to/verify-release.html) shows how to check that a downloaded
 `virtualenv.pyz` came from that workflow.
